@@ -2,6 +2,7 @@ rm(list=ls())
 #######################################################################
 #                         Input
 #######################################################################
+Sys.setenv(JAVA_HOME='C:/Program Files/Java/jre1.8.0_25/')
 library(xlsx)
 ad.bs <- read.xlsx(file = "./data/ADNI/ADNIaalBM_BSL_AD.xls", header = TRUE, sheetIndex = 1)
 ad.m6 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M06_AD.xls", header = TRUE, sheetIndex = 1)
@@ -13,9 +14,22 @@ nl.bs <- read.xlsx(file = "./data/ADNI/ADNIaalBM_BSL_NL.xls", header = TRUE, she
 nl.m6 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M06_NL.xls", header = TRUE, sheetIndex = 1)
 nl.m12 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M12_NL.xls", header = TRUE, sheetIndex = 1)
 #ad.bs[,1] == ad.m6[,1] # check ID consistency
+# Whole dataset
 dat.bs <- rbind(ad.bs[,c(-1,-2)], mci.bs[,-1], nl.bs[,-1])
 dat.m6 <- rbind(ad.m6[,-1], mci.m6[,-1], nl.m6[,-1])
 dat.m12 <- rbind(ad.m12[,-1], mci.m12[,-1], nl.m12[,-1])
+# ad
+dat.bs <- ad.bs[,c(-1,-2)]
+dat.m6 <- ad.m6[,-1]
+dat.m12 <- ad.m12[,-1]
+# mci
+dat.bs <- mci.bs[,-1]
+dat.m6 <- mci.m6[,-1]
+dat.m12 <- mci.m12[,-1]
+# nl
+dat.bs <- nl.bs[,-1]
+dat.m6 <- nl.m6[,-1]
+dat.m12 <- nl.m12[,-1]
 
 #######################################################################
 #                         Quadratic Formulation  
@@ -77,7 +91,7 @@ ggplot(data = dat) + geom_point(aes(y = V1, x = V2), colour = "#FFCC00") +
   ggtitle("Health Index, Yellow = baseline, Blue = m06, Red = m12")
 
 # Less subjects, clearer plot
-dat2 <- dat[sample(c(1:test.sub), 10),] # for clear visualization
+dat2 <- dat[sample(c(1:test.sub), 5),] # for clear visualization
 ggplot(data = dat2) + geom_point(aes(y = V1, x = V2), colour = "#FFCC00", size = 10) + 
   geom_point(aes(y = V1, x = V3), colour = "#0033CC", size = 10) + 
   geom_point(aes(y = V1, x = V4), colour = "#CC0033", size = 10) + 
