@@ -18,6 +18,10 @@ nl.m12 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M12_NL.xls", header = TRUE, sh
 dat.bs <- rbind(ad.bs[,c(-1,-2)], mci.bs[,-1], nl.bs[,-1])
 dat.m6 <- rbind(ad.m6[,-1], mci.m6[,-1], nl.m6[,-1])
 dat.m12 <- rbind(ad.m12[,-1], mci.m12[,-1], nl.m12[,-1])
+# First 90 regions of interest
+dat.bs <- dat.bs[,1:90]
+dat.m6 <- dat.m6[,1:90]
+dat.m12 <- dat.m12[,1:90]
 # ad
 #dat.bs <- ad.bs[,c(-1,-2)]
 #dat.m6 <- ad.m6[,-1]
@@ -122,3 +126,5 @@ viz.omega <- as.data.frame(cbind(omega, name = omega.name))
 viz.omega$no <- c(1:length(omega))
 ggplot(data = viz.omega, aes(y = omega, x = no)) + geom_bar(stat = "identity") +
   scale_x_discrete(labels = omega.name) + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+order.omega <- viz.omega[order(abs(viz.omega$omega), decreasing = TRUE),]
+order.name <- omega.name[order.omega$name]
