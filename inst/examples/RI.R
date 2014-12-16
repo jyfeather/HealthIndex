@@ -18,10 +18,11 @@ nl.m12 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M12_NL.xls", header = TRUE, sh
 dat.bs <- rbind(ad.bs[,c(-1,-2)], mci.bs[,-1], nl.bs[,-1])
 dat.m6 <- rbind(ad.m6[,-1], mci.m6[,-1], nl.m6[,-1])
 dat.m12 <- rbind(ad.m12[,-1], mci.m12[,-1], nl.m12[,-1])
+rid <- c(ad.m12[,1], mci.m12[,1], nl.m12[,1])
 # First 90 regions of interest
-dat.bs <- dat.bs[,1:90]
-dat.m6 <- dat.m6[,1:90]
-dat.m12 <- dat.m12[,1:90]
+#dat.bs <- dat.bs[,1:90]
+#dat.m6 <- dat.m6[,1:90]
+#dat.m12 <- dat.m12[,1:90]
 # ad
 #dat.bs <- ad.bs[,c(-1,-2)]
 #dat.m6 <- ad.m6[,-1]
@@ -89,14 +90,12 @@ ind.m12 <- as.matrix(test.m12) %*% omega
 test.sub <- nrow(test.bs)
 dat <- as.data.frame(cbind(c(1:test.sub), ind.bs, ind.m6, ind.m12))
 # add group info, AD, MCI, NI
-test.group <- rep(0, test.sub)
-test.group.ind <- lapply(num.break, function(x) {
-  test.no < x 
-})
-for (i in 0:(num.epo-1)) {
-  test.group[test.group.ind[[num.epo - i]]] = i + 1
-}
-dat <- cbind(dat, group = as.factor(test.group))
+dat[which(test.no <= num.break[3]),]$group = "NC"
+dat[which(test.no <= num.break[2]),]$group = "MCI"
+dat[which(test.no <= num.break[1]),]$group <- "AD"
+as.factor(dat$group)
+
+write.csv(cbind(rid = rid[test.no], dat[,-1]), file = "./data/tmp/idx.csv")
 
 library(ggplot2)
 # Full plot
@@ -105,7 +104,6 @@ ggplot(data = dat) + geom_point(aes(y = V1, x = V2, shape = group), colour = "#F
   geom_point(aes(y = V1, x = V4, shape = group), colour = "#CC0033") + 
   scale_x_continuous(name="Health Index Value") +
   scale_y_continuous(name="Subject No.", breaks = c(1:nrow(dat))) +
-  scale_shape(labels = c("NI", "MCI", "AD")) + 
   ggtitle("Health Index, Yellow = baseline, Blue = m06, Red = m12")
 
 # Less subjects, clearer plot
