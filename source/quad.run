@@ -1,8 +1,8 @@
-# include C:\Users\JIN\Documents\GitHub\DrivingPerformance\source\quad.run;
+# include C:\Users\jyfea_000\Documents\GitHub\DrivingPerformance\source\quad.run;
 reset;
-model C:\Users\JIN\Documents\GitHub\DrivingPerformance\source\quad.mod;
-data C:\Users\JIN\Documents\GitHub\DrivingPerformance\source\quad.dat;
+model C:\Users\jyfea_000\Documents\GitHub\DrivingPerformance\source\quad.mod;
+data C:\Users\jyfea_000\Documents\GitHub\DrivingPerformance\source\quad.dat;
 option solver cplex;
 solve;
 display w;
-printf {k in 1..n_w} "%12.6e\n", w[k] > C:\Users\JIN\Documents\GitHub\DrivingPerformance\data\tmp\w.res;
+printf {k in 1..n_w} "%12.6e\n", w[k] > C:\Users\jyfea_000\Documents\GitHub\DrivingPerformance\data\tmp\w.res;

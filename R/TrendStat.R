@@ -47,12 +47,18 @@ ad.dif <- diff2(ad.idx)
 mci.dif <- diff2(mci.idx)
 nc.dif <- diff2(nc.idx)
 tot.dif <- diff2(tot.idx)
+# Level 1: bl - m06 - m12  + + +
+# Level 2: bl - m12 - m06  + - +
+#          m06 - bl - m12  - + +
+#          m12 - bl - m06  + - -
+# Level 3: m06 - m12 - bl  - + -
+#          m12 - m06 - bl  - - -
 check <- function(dif) {
   extent <- apply(dif, 1, function(x) {
     sig <- 0
     if (min(x) >= 0) {
       sig <- 1
-    } else if (x[3] < 0) {
+    } else if (x[1] < 0 && x[3] < 0) {
       sig <- 3 
     } else {
       sig <- 2 

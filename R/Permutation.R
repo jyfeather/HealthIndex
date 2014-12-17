@@ -35,9 +35,9 @@ for (i in 1:no.permutation) {
   idx.check <- as.data.frame(idx.check)
   per <- (idx.check[1,2] + idx.check[2,2]) / nrow(idx.diff)
   perset <- c(perset, per)
-  if (per >= 0.7614) sig <- sig + 1
+  if (per >= 0.8349) sig <- sig + 1
 }
 
 library(ggplot2)
 viz.dat <- as.data.frame(cbind(x=c(1:length(perset)), y=perset))
-ggplot(data = viz.dat) + geom_density(aes(y)) + geom_vline(aes(xintercept = 0.7641))
+ggplot(data = viz.dat) + geom_density(aes(y)) + geom_vline(aes(xintercept = 0.8349))

@@ -20,9 +20,9 @@ dat.m6 <- rbind(ad.m6[,-1], mci.m6[,-1], nl.m6[,-1])
 dat.m12 <- rbind(ad.m12[,-1], mci.m12[,-1], nl.m12[,-1])
 rid <- c(ad.m12[,1], mci.m12[,1], nl.m12[,1])
 # First 90 regions of interest
-#dat.bs <- dat.bs[,1:90]
-#dat.m6 <- dat.m6[,1:90]
-#dat.m12 <- dat.m12[,1:90]
+dat.bs <- dat.bs[,1:90]
+dat.m6 <- dat.m6[,1:90]
+dat.m12 <- dat.m12[,1:90]
 # ad
 #dat.bs <- ad.bs[,c(-1,-2)]
 #dat.m6 <- ad.m6[,-1]
@@ -112,7 +112,7 @@ ggplot(data = dat2) + geom_point(aes(y = V1, x = V2), colour = "#FFCC00", size =
 #######################################################################
 omega.name <- read.table(file = "./data/ADNI/aal.txt", sep = " ")
 omega.name <- omega.name$V2
-viz.omega <- cbind(omega, name = omega.name)
+viz.omega <- cbind(omega, name = omega.name[1:90])
 viz.omega$no <- c(1:length(omega$V1))
 ggplot(data = viz.omega, aes(y = V1, x = no)) + geom_bar(stat = "identity") +
   scale_x_discrete(labels = omega.name) + theme(axis.text.x = element_text(angle = 90, hjust = 1))
