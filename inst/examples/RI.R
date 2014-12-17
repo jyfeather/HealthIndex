@@ -20,9 +20,9 @@ dat.m6 <- rbind(ad.m6[,-1], mci.m6[,-1], nl.m6[,-1])
 dat.m12 <- rbind(ad.m12[,-1], mci.m12[,-1], nl.m12[,-1])
 rid <- c(ad.m12[,1], mci.m12[,1], nl.m12[,1])
 # First 90 regions of interest
-#dat.bs <- dat.bs[,1:90]
-#dat.m6 <- dat.m6[,1:90]
-#dat.m12 <- dat.m12[,1:90]
+dat.bs <- dat.bs[,1:90]
+dat.m6 <- dat.m6[,1:90]
+dat.m12 <- dat.m12[,1:90]
 # ad
 #dat.bs <- ad.bs[,c(-1,-2)]
 #dat.m6 <- ad.m6[,-1]
@@ -55,41 +55,34 @@ test.m12 <- dat.m12[test.no,]
 train.sub <- nrow(train.bs)
 
 #library(quadprog)
-H <- matrix(0, nrow = (num.aal + train.sub*(num.epo-1)), ncol = (num.aal + train.sub*(num.epo-1)))
-diag(H)[1:num.aal] = 1
-l <- c(rep(0, num.aal), rep(1, train.sub*(num.epo-1)))
 e1 <- train.m6 - train.bs
 e2 <- train.m12 - train.m6
 E <- rbind(e1, e2)
-E <- cbind(E, diag(train.sub*(num.epo-1)))
-pn <- matrix(0, nrow = train.sub*(num.epo-1), ncol = num.aal)
-pn <- cbind(pn, diag(train.sub*(num.epo-1)))
-E <- rbind(as.matrix(E), pn)
-b0 <- rep(0, nrow(E))
 #solve.QP(Dmat = 2*H, dvec = -l, Amat = t(E), bvec = b0)
 
 #######################################################################
-#                         Use matlab to solve this problem  
+#                         Use AMPL to solve this problem  
 #######################################################################
 
-# pass coefficients to matlab to solve this problem
-write.csv(H, file = "./inst/dat/H.csv", row.names = FALSE)
-write.csv(l, file = "./inst/dat/l.csv", row.names = FALSE)
-write.csv(E, file = "./inst/dat/E.csv", row.names = FALSE)
-write.csv(b0, file = "./inst/dat/b0.csv", row.names = FALSE)
+# pass coefficients to AMPL to solve this problem
+E <- round(E, 5)
+E <- E[1:209, 1:90]
+E <- cbind(c(1:nrow(E)), E)
+E <- rbind(as.integer(c(0:ncol(E))), E)
+write.table(E, file = "./data/tmp/E.dat", sep = " ", row.names = FALSE, col.names = FALSE)
 
-res <- read.csv(file = "./inst/dat//res.csv", header = FALSE)
-omega <- res[1:num.aal,]
+omega <- read.table(file = "./data/tmp/w.res", header = FALSE)
 
 #######################################################################
 #                         Health Index Construction
 #######################################################################
-ind.bs <- as.matrix(test.bs) %*% omega
-ind.m6 <- as.matrix(test.m6) %*% omega
-ind.m12 <- as.matrix(test.m12) %*% omega
+ind.bs <- as.matrix(test.bs) %*% omega$V1
+ind.m6 <- as.matrix(test.m6) %*% omega$V1
+ind.m12 <- as.matrix(test.m12) %*% omega$V1
 test.sub <- nrow(test.bs)
 dat <- as.data.frame(cbind(c(1:test.sub), ind.bs, ind.m6, ind.m12))
 # add group info, AD, MCI, NI
+dat$group = NA;
 dat[which(test.no <= num.break[3]),]$group = "NC"
 dat[which(test.no <= num.break[2]),]$group = "MCI"
 dat[which(test.no <= num.break[1]),]$group <- "AD"
@@ -116,7 +109,7 @@ ggplot(data = dat2) + geom_point(aes(y = V1, x = V2), colour = "#FFCC00", size =
   ggtitle("Health Index, Yellow = baseline, Blue = m06, Red = m12")
 
 #######################################################################
-#                         Other Visualization  
+#                         Other Visualization   
 #######################################################################
 omega.name <- read.table(file = "./data/ADNI/aal.txt", sep = " ")
 omega.name <- omega.name$V2
