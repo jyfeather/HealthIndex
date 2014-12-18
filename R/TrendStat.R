@@ -1,6 +1,7 @@
-rm(list = ls())
+#rm(list = ls())
 
 idx <- read.csv(file = "./data/tmp/idx.csv")
+tot.idx <- idx[,c(-1,-2,-6)]
 ad.idx <- idx[idx$group == "AD",c(-1,-2,-6)]
 mci.idx <- idx[idx$group == "MCI",c(-1,-2,-6)]
 nc.idx <- idx[idx$group == "NC",c(-1,-2,-6)]
@@ -45,14 +46,16 @@ diff2 <- function(df) {
 ad.dif <- diff2(ad.idx)
 mci.dif <- diff2(mci.idx)
 nc.dif <- diff2(nc.idx)
+tot.dif <- diff2(tot.idx)
 check <- function(dif) {
   extent <- apply(dif, 1, function(x) {
     sig <- 0
-    if (min(x) > 0) {
+    if (min(x) >= 0) {
       sig <- 1
+    } else if (x[3] < 0) {
+      sig <- 3 
     } else {
-      if (x[1] < 0 || x[2] < 0) sig <- 2
-      if (x[3] < 0) sig <- 3
+      sig <- 2 
     }
     return(sig)
   })
@@ -61,3 +64,4 @@ check <- function(dif) {
 ad.check <- as.data.frame(check(ad.dif))
 mci.check <- as.data.frame(check(mci.dif))
 nc.check <- as.data.frame(check(nc.dif))
+tot.check <- as.data.frame(check(tot.dif))
