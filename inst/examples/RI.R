@@ -2,39 +2,36 @@ rm(list=ls())
 #######################################################################
 #                         Input
 #######################################################################
-Sys.setenv(JAVA_HOME='C:/Program Files/Java/jre1.8.0_25/')
-library(xlsx)
-ad.bs <- read.xlsx(file = "./data/ADNI/ADNIaalBM_BSL_AD.xls", header = TRUE, sheetIndex = 1)
-ad.m6 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M06_AD.xls", header = TRUE, sheetIndex = 1)
-ad.m12 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M12_AD.xls", header = TRUE, sheetIndex = 1)
-mci.bs <- read.xlsx(file = "./data/ADNI/ADNIaalBM_BSL_MCI.xls", header = TRUE, sheetIndex = 1)
-mci.m6 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M06_MCI.xls", header = TRUE, sheetIndex = 1)
-mci.m12 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M12_MCI.xls", header = TRUE, sheetIndex = 1)
-nl.bs <- read.xlsx(file = "./data/ADNI/ADNIaalBM_BSL_NL.xls", header = TRUE, sheetIndex = 1)
-nl.m6 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M06_NL.xls", header = TRUE, sheetIndex = 1)
-nl.m12 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M12_NL.xls", header = TRUE, sheetIndex = 1)
-#ad.bs[,1] == ad.m6[,1] # check ID consistency
-# Whole dataset
-dat.bs <- rbind(ad.bs[,c(-1,-2)], mci.bs[,-1], nl.bs[,-1])
-dat.m6 <- rbind(ad.m6[,-1], mci.m6[,-1], nl.m6[,-1])
-dat.m12 <- rbind(ad.m12[,-1], mci.m12[,-1], nl.m12[,-1])
-rid <- c(ad.m12[,1], mci.m12[,1], nl.m12[,1])
-# First 90 regions of interest
-dat.bs <- dat.bs[,1:90]
-dat.m6 <- dat.m6[,1:90]
-dat.m12 <- dat.m12[,1:90]
-# ad
-#dat.bs <- ad.bs[,c(-1,-2)]
-#dat.m6 <- ad.m6[,-1]
-#dat.m12 <- ad.m12[,-1]
-# mci
-#dat.bs <- mci.bs[,-1]
-#dat.m6 <- mci.m6[,-1]
-#dat.m12 <- mci.m12[,-1]
-# nl
-#dat.bs <- nl.bs[,-1]
-#dat.m6 <- nl.m6[,-1]
-#dat.m12 <- nl.m12[,-1]
+if (FALSE) {
+  Sys.setenv(JAVA_HOME='C:/Program Files/Java/jre1.8.0_25/')
+  library(xlsx)
+  ad.bs <- read.xlsx(file = "./data/ADNI/ADNIaalBM_BSL_AD.xls", header = TRUE, sheetIndex = 1)
+  ad.m6 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M06_AD.xls", header = TRUE, sheetIndex = 1)
+  ad.m12 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M12_AD.xls", header = TRUE, sheetIndex = 1)
+  mci.bs <- read.xlsx(file = "./data/ADNI/ADNIaalBM_BSL_MCI.xls", header = TRUE, sheetIndex = 1)
+  mci.m6 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M06_MCI.xls", header = TRUE, sheetIndex = 1)
+  mci.m12 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M12_MCI.xls", header = TRUE, sheetIndex = 1)
+  nl.bs <- read.xlsx(file = "./data/ADNI/ADNIaalBM_BSL_NL.xls", header = TRUE, sheetIndex = 1)
+  nl.m6 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M06_NL.xls", header = TRUE, sheetIndex = 1)
+  nl.m12 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M12_NL.xls", header = TRUE, sheetIndex = 1)
+  #ad.bs[,1] == ad.m6[,1] # check ID consistency
+  # Whole dataset
+  dat.bs <- rbind(ad.bs[,c(-1,-2)], mci.bs[,-1], nl.bs[,-1])
+  dat.m6 <- rbind(ad.m6[,-1], mci.m6[,-1], nl.m6[,-1])
+  dat.m12 <- rbind(ad.m12[,-1], mci.m12[,-1], nl.m12[,-1])
+  rid <- c(ad.m12[,1], mci.m12[,1], nl.m12[,1])
+  # First 90 regions of interest
+  dat.bs <- dat.bs[,1:90]
+  dat.m6 <- dat.m6[,1:90]
+  dat.m12 <- dat.m12[,1:90]  
+  # save data
+  unlink("*.RData")
+  save.image(file = "ADNI.RData")
+}
+
+
+# load data
+load(file = "./ADNI.RData")
 
 #######################################################################
 #                         Quadratic Formulation  
@@ -110,11 +107,10 @@ ggplot(data = dat2) + geom_point(aes(y = V1, x = V2), colour = "#FFCC00", size =
 #######################################################################
 #                         Other Visualization   
 #######################################################################
-omega.name <- read.table(file = "./data/ADNI/aal.txt", sep = " ")
+omega.name <- read.table(file = "C:/Users/jyfea_000/Dropbox/Research/Health_Index/dataset/ADNI/aal.txt", sep = " ")
 omega.name <- omega.name$V2
 viz.omega <- cbind(omega, name = omega.name[1:90])
 viz.omega$no <- c(1:length(omega$V1))
 ggplot(data = viz.omega, aes(y = V1, x = no)) + geom_bar(stat = "identity") +
-  scale_x_discrete(labels = omega.name) + theme(axis.text.x = element_text(angle = 90, hjust = 1))
-order.omega <- viz.omega[order(abs(viz.omega$omega), decreasing = TRUE),]
-order.name <- omega.name[order.omega$name]
+  scale_x_discrete(breaks = viz.omega$no - 1, labels = omega.name[1:90]) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
