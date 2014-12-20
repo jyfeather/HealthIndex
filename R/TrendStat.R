@@ -7,37 +7,6 @@ mci.idx <- idx[idx$group == "MCI",c(-1,-2,-6)]
 nc.idx <- idx[idx$group == "NC",c(-1,-2,-6)]
 
 #######################################################################
-#                         Distribution & T test  
-#######################################################################
-library(ggplot2)
-ggplot(data = ad.idx) +
-  geom_density(aes(V2), colour = "#FFCC00") +
-  geom_density(aes(V3), colour = "#0033CC") +
-  geom_density(aes(V4), colour = "#CC0033") +
-  ggtitle("AD")
-t.test(ad.idx$V2, ad.idx$V3)
-t.test(ad.idx$V2, ad.idx$V4)
-t.test(ad.idx$V3, ad.idx$V4)
-
-ggplot(data = mci.idx) +
-  geom_density(aes(V2), colour = "#FFCC00") +
-  geom_density(aes(V3), colour = "#0033CC") +
-  geom_density(aes(V4), colour = "#CC0033") +
-  ggtitle("MCI")
-t.test(mci.idx$V2, mci.idx$V3)
-t.test(mci.idx$V2, mci.idx$V4)
-t.test(mci.idx$V3, mci.idx$V4)
-
-ggplot(data = nc.idx) +
-  geom_density(aes(V2), colour = "#FFCC00") +
-  geom_density(aes(V3), colour = "#0033CC") +
-  geom_density(aes(V4), colour = "#CC0033") +
-  ggtitle("NC")
-t.test(nc.idx$V2, nc.idx$V3)
-t.test(nc.idx$V2, nc.idx$V4)
-t.test(nc.idx$V3, nc.idx$V4)
-
-#######################################################################
 #                         Monotone Check  
 #######################################################################
 diff2 <- function(df) {
@@ -71,3 +40,12 @@ ad.check <- as.data.frame(check(ad.dif))
 mci.check <- as.data.frame(check(mci.dif))
 nc.check <- as.data.frame(check(nc.dif))
 tot.check <- as.data.frame(check(tot.dif))
+
+
+dat.viz <- as.data.frame(c(ad.check$Freq, mci.check$Freq, nc.check$Freq, tot.check$Freq))
+dat.viz <- cbind(freq = dat.viz[,1], trend = as.factor(rep(c("Strong Mono", "Mono", "Against Mono"),4)))
+dat.viz <- cbind(stage = c(rep("AD",3), rep("MCI",3), rep("NC",3), rep("TOTAL",3)), dat.viz)
+dat.viz <- as.data.frame(dat.viz)
+library(ggplot2)
+ggplot(data = dat.viz) +
+  geom_bar(aes(x = stage, fill = trend), position = "dodge", stat = "bin")

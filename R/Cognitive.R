@@ -3,8 +3,8 @@ rm(list = ls())
 #                         Input
 #######################################################################
 idx <- read.csv(file = "./data/tmp/idx.csv")
-adas <- read.csv(file = "./data/ADNI/SCORE/ADASSCORES.csv")
-mmse <- read.csv(file = "./data/ADNI/SCORE/MMSE.csv")
+adas <- read.csv(file = "C:/Users/jyfea_000/Dropbox/Research/Health_Index/dataset/ADNI/SCORE/ADASSCORES.csv")
+mmse <- read.csv(file = "C:/Users/jyfea_000/Dropbox/Research/Health_Index/dataset/ADNI/SCORE/MMSE.csv")
 adas <- adas[c("RID", "VISCODE", "TOTALMOD")]
 mmse <- mmse[c("RID", "VISCODE", "MMSCORE")]
 levels(mmse$VISCODE)[levels(mmse$VISCODE) %in% c("f", "sc")] <- "bl"

@@ -2,7 +2,7 @@ rm(list=ls())
 #######################################################################
 #                         Input
 #######################################################################
-if (TRUE) {
+if (FALSE) {
   raw.cor <- read.csv(file = "C:/Users/jyfea_000/Dropbox/Research/Health_Index/dataset/Paul Corr/cors.csv")
   dat.cor <- raw.cor[,c(-2:-5)]
   cols <- colnames(dat.cor)
@@ -65,11 +65,19 @@ omega <- read.table(file = "./data/tmp/w.res", header = FALSE)
 ind.1 <- as.matrix(test.1) %*% omega$V1
 ind.2 <- as.matrix(test.2) %*% omega$V1
 ind.3 <- as.matrix(test.3) %*% omega$V1
-dat.viz <- as.data.frame(cbind(no = 1:length(test.no), id = test.sub, ind.1, ind.2, ind.3))
 
-write.csv(dat.viz[,-1], file = "./data/tmp/idx.csv")
+dat.viz <- rbind(cbind(test.sub, index = ind.1, time = rep(1, 41)), 
+      cbind(test.sub, index = ind.2, time = rep(2, 41)), 
+      cbind(test.sub, index = ind.3, time = rep(3, 41)))
+rownames(dat.viz) <- NULL
+dat.viz <- as.data.frame(dat.viz)
+as.factor(dat.viz$time)
 
 library(ggplot2)
+ggplot(data = dat.viz, aes(x=time, y=V2, group = test.sub)) + geom_point() + geom_line() +
+  scale_y_continuous(name = "Health Index Value") +
+  scale_x_discrete(labels = c("BL", "6", "12")) + facet_grid(.~test.sub)
+
 ggplot(data = dat.viz, aes(x = value, y = no, colour = valuable)) +
   geom_point(aes(x = V3, col = "1")) +
   geom_point(aes(x = V4, col = "2")) +
@@ -80,11 +88,27 @@ ggplot(data = dat.viz, aes(x = value, y = no, colour = valuable)) +
   scale_y_discrete(name="Subject ID", breaks = c(1:length(test.no)), labels = dat.viz$id) +
   ggtitle("Health Index on Testing Set")
 
+omega.name <- colnames(train.1) 
+omega.name <- substr(omega.name, 3, nchar(omega.name) - 2)
+mean <- colMeans(dat.3[,-1])
+mean.1 <- mean[1:30]
+mean.2 <- mean[56:85]
+mean.3 <- mean[111:140]
+dat.mean <- rbind(cbind(mean.1, time = rep(1,30)),
+                  cbind(mean.2, time = rep(2,30)),
+                  cbind(mean.3, time = rep(3,30)))
+dat.mean <- as.data.frame(dat.mean)
+dat.mean <- cbind(name = rep(omega.name[1:30], 3), dat.mean)
+rownames(dat.mean) <- NULL
+as.factor(dat.mean$time)
+ggplot(data = dat.mean, aes(x=time, y=mean.1, group = name)) + geom_point() + geom_line() +
+  scale_y_continuous(name = "Health Index Value") +
+  scale_x_discrete(labels = c("BL", "6", "12")) + facet_grid(.~name)
+
+
 #######################################################################
 #                         Other Visualization   
 #######################################################################
-omega.name <- colnames(train.1) 
-omega.name <- substr(omega.name, 3, nchar(omega.name) - 2)
 viz.omega <- cbind(omega, name = omega.name)
 viz.omega$no <- c(1:length(omega$V1))
 ggplot(data = viz.omega, aes(y = V1, x = no)) + geom_bar(stat = "identity") +

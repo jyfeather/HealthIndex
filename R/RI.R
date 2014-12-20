@@ -24,6 +24,7 @@ if (FALSE) {
   dat.bs <- dat.bs[,1:90]
   dat.m6 <- dat.m6[,1:90]
   dat.m12 <- dat.m12[,1:90]  
+  omega.name <- read.table(file = "C:/Users/jyfea_000/Dropbox/Research/Health_Index/dataset/ADNI/aal.txt", sep = " ")
   # save data
   unlink("*.RData")
   save.image(file = "ADNI.RData")
@@ -37,19 +38,26 @@ load(file = "./ADNI.RData")
 #                         Quadratic Formulation  
 #######################################################################
 num.break <- c(nrow(ad.bs), nrow(ad.bs) + nrow(mci.bs), nrow(ad.bs) + nrow(mci.bs) + nrow(nl.bs))
-num.sub <- nrow(dat.bs) # num of subjects is 74
+num.sub <- nrow(dat.bs) # num of subjects is 324 
+dat.no <- c(1:num.sub)
 num.epo <- 3 # num of epochs is 3, baseline, m06, m12
 num.aal <- ncol(dat.bs) # num of regions of interests
-train.no <- sample(num.sub, round(2/3*num.sub))
+
+# 3 - folder Cross Validation 
+folder.1 <- sample(num.sub, round(1/3*num.sub), replace = FALSE)
+folder.2 <- sample(setdiff(dat.no, folder.1), round(1/3*num.sub), replace = FALSE)
+folder.3 <- setdiff(dat.no, union(folder.1, folder.2))
+
+train.no <- union(folder.2, folder.3)
+test.no <- folder.1; test.no <- sort(test.no)
+
 train.bs <- dat.bs[train.no,]
 train.m6 <- dat.m6[train.no,]
 train.m12 <- dat.m12[train.no,]
-dat.no <- c(1:num.sub)
-test.no <- dat.no[!dat.no %in% train.no]
+
 test.bs <- dat.bs[test.no,]
 test.m6 <- dat.m6[test.no,]
 test.m12 <- dat.m12[test.no,]
-train.sub <- nrow(train.bs)
 
 #library(quadprog)
 e1 <- train.m6 - train.bs
@@ -60,7 +68,6 @@ E <- rbind(e1, e2)
 #######################################################################
 #                         Use AMPL to solve this problem  
 #######################################################################
-
 # pass coefficients to AMPL to solve this problem
 E <- round(E, 5)
 E <- cbind(c(1:nrow(E)), E)
@@ -68,6 +75,7 @@ E <- rbind(as.integer(c(0:ncol(E))), E)
 write.table(E, file = "./data/tmp/E.dat", sep = " ", row.names = FALSE, col.names = FALSE)
 
 omega <- read.table(file = "./data/tmp/w.res", header = FALSE)
+unlink("./data/tmp/w.res")
 
 #######################################################################
 #                         Health Index Construction
@@ -75,6 +83,10 @@ omega <- read.table(file = "./data/tmp/w.res", header = FALSE)
 ind.bs <- as.matrix(test.bs) %*% omega$V1
 ind.m6 <- as.matrix(test.m6) %*% omega$V1
 ind.m12 <- as.matrix(test.m12) %*% omega$V1
+
+err.vec <- 1 - c(ind.m6[,1] - ind.bs[,1], ind.m12[,1] - ind.m6[,1])
+err <- sum(err.vec[err.vec > 0])
+
 test.sub <- nrow(test.bs)
 dat <- as.data.frame(cbind(c(1:test.sub), ind.bs, ind.m6, ind.m12))
 # add group info, AD, MCI, NI
@@ -88,12 +100,15 @@ write.csv(cbind(rid = rid[test.no], dat[,-1]), file = "./data/tmp/idx.csv")
 
 library(ggplot2)
 # Full plot
-ggplot(data = dat) + geom_point(aes(y = V1, x = V2, shape = group), colour = "#FFCC00") + 
-  geom_point(aes(y = V1, x = V3, shape = group), colour = "#0033CC") + 
-  geom_point(aes(y = V1, x = V4, shape = group), colour = "#CC0033") + 
+ggplot(data = dat, aes(y = V1, x = val, shape = group, color = val2)) + 
+  geom_point(aes(x = V2, shape = group, color = "00")) + 
+  geom_point(aes(x = V3, shape = group, color = "06")) + 
+  geom_point(aes(x = V4, shape = group, color = "12")) + 
+  scale_color_manual(values = c("#FFCC00", "#0033CC", "#CC0033"), breaks = c("00", "06", "12"), 
+                     labels = c("Baseline", "M06", "M12"), name = "time") +
   scale_x_continuous(name="Health Index Value") +
   scale_y_continuous(name="Subject No.", breaks = c(1:nrow(dat))) +
-  ggtitle("Health Index, Yellow = baseline, Blue = m06, Red = m12")
+  ggtitle("Health Index on Testing Set")
 
 # Less subjects, clearer plot
 dat2 <- dat[sample(c(1:test.sub), 5),] # for clear visualization
@@ -107,10 +122,10 @@ ggplot(data = dat2) + geom_point(aes(y = V1, x = V2), colour = "#FFCC00", size =
 #######################################################################
 #                         Other Visualization   
 #######################################################################
-omega.name <- read.table(file = "C:/Users/jyfea_000/Dropbox/Research/Health_Index/dataset/ADNI/aal.txt", sep = " ")
 omega.name <- omega.name$V2
 viz.omega <- cbind(omega, name = omega.name[1:90])
 viz.omega$no <- c(1:length(omega$V1))
 ggplot(data = viz.omega, aes(y = V1, x = no)) + geom_bar(stat = "identity") +
-  scale_x_discrete(breaks = viz.omega$no - 1, labels = omega.name[1:90]) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  scale_x_discrete(breaks = viz.omega$no, labels = omega.name[1:90]) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.title.x = element_blank()) +
+  ylab("Relative Importance")
