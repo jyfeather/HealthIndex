@@ -3,7 +3,8 @@ param n_xi;
 param C default 20;
 param E{1..n_xi, 1..n_w};
 
-var w{i in 1..n_w} >= 0;
+#var w{i in 1..n_w} >= 0;
+var w{i in 1..n_w};
 var xi{j in 1..n_xi} >= 0;
 
 minimize cost: 

@@ -26,19 +26,31 @@ load(file = "./Paul.RData")
 #######################################################################
 #                         Quadratic Formulation  
 #######################################################################
+tot.1 <- dat.3[,2:56]
+tot.2 <- dat.3[,57:111]
+tot.3 <- dat.3[,112:166]
+# standardization
+library(matrixStats)
+mean.1 <- colMeans(tot.1)
+sd.1 <- colSds(as.matrix(tot.1))
+for (i in 1:55) {
+  tot.1[,i] = (tot.1[,i]-mean.1[i])/sd.1[i]
+  tot.2[,i] = (tot.2[,i]-mean.1[i])/sd.1[i]
+  tot.3[,i] = (tot.3[,i]-mean.1[i])/sd.1[i]
+}
 num.sub <- nrow(dat.3)
 num.epo <- 3 # num of epochs is 3
 num.cor <- 55
 train.no <- sample(num.sub, round(2/3*num.sub))
-train.1 <- dat.3[train.no,2:56]
-train.2 <- dat.3[train.no,57:111]
-train.3 <- dat.3[train.no,112:166]
+train.1 <- tot.1[train.no,]
+train.2 <- tot.2[train.no,]
+train.3 <- tot.3[train.no,]
 dat.no <- c(1:num.sub)
 test.no <- dat.no[!dat.no %in% train.no]
 test.sub <- dat.3[test.no, 1]
-test.1 <- dat.3[test.no,2:56]
-test.2 <- dat.3[test.no,57:111]
-test.3 <- dat.3[test.no,112:166]
+test.1 <- tot.1[test.no,]
+test.2 <- tot.2[test.no,]
+test.3 <- tot.3[test.no,]
 
 #library(quadprog)
 e1 <- train.2 - train.1
@@ -58,6 +70,7 @@ E <- rbind(as.integer(c(0:ncol(E))), E)
 write.table(E, file = "./data/tmp/E.dat", sep = " ", row.names = FALSE, col.names = FALSE)
 
 omega <- read.table(file = "./data/tmp/w.res", header = FALSE)
+unlink("./data/tmp/w.res")
 
 #######################################################################
 #                         Health Index Construction
@@ -74,10 +87,12 @@ dat.viz <- as.data.frame(dat.viz)
 as.factor(dat.viz$time)
 
 library(ggplot2)
+# trend plot, curve
 ggplot(data = dat.viz, aes(x=time, y=V2, group = test.sub)) + geom_point() + geom_line() +
   scale_y_continuous(name = "Health Index Value") +
   scale_x_discrete(labels = c("BL", "6", "12")) + facet_grid(.~test.sub)
 
+# trend plot, dot
 ggplot(data = dat.viz, aes(x = value, y = no, colour = valuable)) +
   geom_point(aes(x = V3, col = "1")) +
   geom_point(aes(x = V4, col = "2")) +
@@ -88,27 +103,25 @@ ggplot(data = dat.viz, aes(x = value, y = no, colour = valuable)) +
   scale_y_discrete(name="Subject ID", breaks = c(1:length(test.no)), labels = dat.viz$id) +
   ggtitle("Health Index on Testing Set")
 
-omega.name <- colnames(train.1) 
-omega.name <- substr(omega.name, 3, nchar(omega.name) - 2)
+# variable trend plot, curve
 mean <- colMeans(dat.3[,-1])
-mean.1 <- mean[1:30]
-mean.2 <- mean[56:85]
-mean.3 <- mean[111:140]
-dat.mean <- rbind(cbind(mean.1, time = rep(1,30)),
-                  cbind(mean.2, time = rep(2,30)),
-                  cbind(mean.3, time = rep(3,30)))
+omega.name <- colnames(dat.3)[-1] 
+omega.name <- substr(omega.name, 3, nchar(omega.name) - 2)
+mean.1 <- mean[31:55]
+mean.2 <- mean[86:110]
+mean.3 <- mean[141:165]
+dat.mean <- rbind(cbind(mean.1, time = rep(1,25)),
+                  cbind(mean.2, time = rep(2,25)),
+                  cbind(mean.3, time = rep(3,25)))
 dat.mean <- as.data.frame(dat.mean)
-dat.mean <- cbind(name = rep(omega.name[1:30], 3), dat.mean)
+dat.mean <- cbind(name = rep(omega.name[31:55], 3), dat.mean)
 rownames(dat.mean) <- NULL
 as.factor(dat.mean$time)
 ggplot(data = dat.mean, aes(x=time, y=mean.1, group = name)) + geom_point() + geom_line() +
-  scale_y_continuous(name = "Health Index Value") +
+  scale_y_continuous(name = "Correlation Value") +
   scale_x_discrete(labels = c("BL", "6", "12")) + facet_grid(.~name)
 
-
-#######################################################################
-#                         Other Visualization   
-#######################################################################
+# variable importance plot.
 viz.omega <- cbind(omega, name = omega.name)
 viz.omega$no <- c(1:length(omega$V1))
 ggplot(data = viz.omega, aes(y = V1, x = no)) + geom_bar(stat = "identity") +
