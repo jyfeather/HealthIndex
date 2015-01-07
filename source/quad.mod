@@ -1,6 +1,6 @@
 param n_w;
 param n_xi;
-param C default 20;
+param C;
 param E{1..n_xi, 1..n_w};
 
 #var w{i in 1..n_w} >= 0;

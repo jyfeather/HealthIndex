@@ -41,12 +41,19 @@ for (i in 1:55) {
 num.sub <- nrow(dat.2)
 num.epo <- 3 # num of epochs is 3
 num.cor <- 55
-train.no <- sample(num.sub, round(2/3*num.sub))
+
+# 3 fold cross validation
+dat.no <- c(1:num.sub)
+fold.size <- round(1/3*num.sub)
+fold.1 <- sample(num.sub, fold.size, replace = FALSE)
+fold.2 <- sample(dat.no[!dat.no %in% fold.1], fold.size, replace = FALSE)
+fold.3 <- dat.no[!dat.no %in% c(fold.1, fold.2)]
+
+train.no <- c(fold.1, fold.3)
 train.1 <- tot.1[train.no,]
 train.2 <- tot.2[train.no,]
 train.3 <- tot.3[train.no,]
-dat.no <- c(1:num.sub)
-test.no <- dat.no[!dat.no %in% train.no]
+test.no <- fold.2
 test.sub <- dat.2[test.no, 1]
 test.1 <- tot.1[test.no,]
 test.2 <- tot.2[test.no,]
@@ -67,10 +74,13 @@ E <- na.omit(E)
 #######################################################################
 
 # pass coefficients to AMPL to solve this problem
-E <- round(E, 5)
+#E <- round(E, 5)
 E <- cbind(c(1:nrow(E)), E)
 E <- rbind(as.integer(c(0:ncol(E))), E)
-write.table(E, file = "./data/tmp/E.dat", sep = " ", row.names = FALSE, col.names = FALSE)
+write.table(E, file = "./source/Ematrix.dat", sep = " ", row.names = FALSE, col.names = FALSE)
+# param E:
+# del 0, add :=
+# add ;
 
 omega <- read.table(file = "./data/tmp/w.res", header = FALSE)
 unlink("./data/tmp/w.res")
