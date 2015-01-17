@@ -70,20 +70,14 @@ E <- rbind(e1, e2)
 E <- na.omit(E)
 
 #######################################################################
-#                         Use AMPL to solve this problem  
+#                         Use CVX to solve this problem  
 #######################################################################
-
 # pass coefficients to AMPL to solve this problem
-#E <- round(E, 5)
-E <- cbind(c(1:nrow(E)), E)
-E <- rbind(as.integer(c(0:ncol(E))), E)
-write.table(E, file = "./source/Ematrix.dat", sep = " ", row.names = FALSE, col.names = FALSE)
-# param E:
-# del 0, add :=
-# add ;
+write.table(E, file = "./data/Ematrix.csv", sep = ",", row.names = FALSE, col.names = FALSE)
 
-omega <- read.table(file = "./data/tmp/w.res", header = FALSE)
-unlink("./data/tmp/w.res")
+readline("Press any key to return after solving the problem.")
+
+omega <- read.table(file = "./data/w.res", header = FALSE)
 
 #######################################################################
 #                         Health Index Construction
