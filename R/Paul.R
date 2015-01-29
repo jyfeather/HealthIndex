@@ -15,6 +15,7 @@ if (FALSE) {
   check.2 <- unlist(lapply(1:nrow(dat.cor), function(x) any(is.na(dat.cor[x,1:111]))))
   table(check.2)
   dat.2 <- dat.cor[which(!check.2),]
+  rm(dat.cor, check.2, cols.1, cols.2, cols.3)
   # save .RData
   unlink("Paul.RData")
   save.image(file = "Paul.RData")
@@ -24,7 +25,7 @@ if (FALSE) {
 load(file = "./Paul.RData")
 
 #######################################################################
-#                         Quadratic Formulation  
+#                         standarization 
 #######################################################################
 tot.1 <- dat.2[,2:56]
 tot.2 <- dat.2[,57:111]
@@ -42,7 +43,11 @@ num.sub <- nrow(dat.2)
 num.epo <- 3 # num of epochs is 3
 num.cor <- 55
 
-# 3 fold cross validation
+omega.name <- colnames(dat.2)[-1] 
+omega.name <- substr(omega.name, 3, nchar(omega.name) - 2)
+#######################################################################
+#                         3-fold cross validation 
+#######################################################################
 dat.no <- c(1:num.sub)
 fold.size <- round(1/3*num.sub)
 fold.1 <- sample(num.sub, fold.size, replace = FALSE)
@@ -59,9 +64,6 @@ test.1 <- tot.1[test.no,]
 test.2 <- tot.2[test.no,]
 test.3 <- tot.3[test.no,]
 
-omega.name <- colnames(dat.2)[-1] 
-omega.name <- substr(omega.name, 3, nchar(omega.name) - 2)
-
 e1 <- train.2 - train.1
 e2 <- train.3 - train.2
 e1 <- setNames(e1, 1:55)
@@ -69,12 +71,37 @@ e2 <- setNames(e2, 1:55)
 E <- rbind(e1, e2)
 E <- na.omit(E)
 
+write.table(E, file = "./data/E.csv", sep = ",", row.names = FALSE, col.names = FALSE)
+#######################################################################
+#                   Bootstraping Confidence Interval
+#######################################################################
+if(TRUE) {
+  boot.num <- 100
+  for (i in 1:boot.num) {
+    boot.dat <- sample(num.sub, num.sub-1, replace = TRUE)
+    e1 <- tot.2[boot.dat,] - tot.1[boot.dat,]
+    e2 <- tot.3[boot.dat,] - tot.2[boot.dat,]
+    e1 <- setNames(e1, 1:55)
+    e2 <- setNames(e2, 1:55)
+    E <- rbind(e1, e2)
+    E <- na.omit(E)
+    write.table(E, file = paste("./data/bootstrapping/E/E",i,".csv", sep = ""), sep = ",", row.names = FALSE, col.names = FALSE)
+  }
+  readline("Press any key to return after solving the problem.")
+  W <- read.table(file = "./data/bootstrapping/W/W1.csv", header = FALSE)  
+  for (i in 2:boot.num) {
+    W <- cbind(W, read.table(file = paste("./data/bootstrapping/W/W",i,".csv", sep = ""), header = FALSE))
+  }
+  boot.W <- data.frame(mean = rowMeans(W), sd = rowSds(as.matrix(W)))
+  library(ggplot2)
+  ggplot(data = boot.W, aes(x=factor(1:55),y=mean, ymin=mean-2*sd, ymax=mean+2*sd)) +
+    geom_pointrange() + ylab("weights") + xlab("variables") +
+    ggtitle("Bootstrapping Confidence Interval for Weights")
+}
+
 #######################################################################
 #                         Use CVX to solve this problem  
 #######################################################################
-# pass coefficients to AMPL to solve this problem
-write.table(E, file = "./data/Ematrix.csv", sep = ",", row.names = FALSE, col.names = FALSE)
-
 readline("Press any key to return after solving the problem.")
 
 omega <- read.table(file = "./data/w.res", header = FALSE)
