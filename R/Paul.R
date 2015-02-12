@@ -3,7 +3,7 @@ rm(list=ls())
 #                         Input
 #######################################################################
 if (FALSE) {
-  raw.cor <- read.csv(file = "C:/Users/jyfea_000/Dropbox/Research/Health_Index/dataset/Paul Corr/cors.csv")
+  raw.cor <- read.csv(file = "C:/Users/jyfea_000/Dropbox/Research/Health_Index/dataset/SLS/cors.csv")
   dat.cor <- raw.cor[,c(-2:-5)]
   cols <- colnames(dat.cor)
   cols.1 <- which(lapply(cols, function(x) substr(x, nchar(x), nchar(x))) %in% c("1"))
@@ -15,6 +15,10 @@ if (FALSE) {
   check.2 <- unlist(lapply(1:nrow(dat.cor), function(x) any(is.na(dat.cor[x,1:111]))))
   table(check.2)
   dat.2 <- dat.cor[which(!check.2),]
+  
+  # cognitive score
+  raw.cog <- read.csv(file = "C:/Users/jyfea_000/Dropbox/Research/Health_Index/dataset/SLS/cog.csv")
+  
   rm(dat.cor, check.2, cols.1, cols.2, cols.3)
   # save .RData
   unlink("Paul.RData")
@@ -23,6 +27,20 @@ if (FALSE) {
 
 # load .RData
 load(file = "./Paul.RData")
+
+#######################################################################
+#                         cognitive score
+#######################################################################
+sub.dec <- subset(raw.cog, REASTAT == 1) # decline
+sub.nondec <- subset(raw.cog, REASTAT == 0) # gain/stable
+#sub.dec <- subset(raw.cog, SPEEDSTA == 1) # decline
+#sub.nondec <- subset(raw.cog, SPEEDSTA == 0) # gain/stable
+#sub.dec <- subset(raw.cog, MEMSTAT == 1) # decline
+#sub.nondec <- subset(raw.cog, MEMSTAT == 0) # gain/stable
+
+dat.orig <- dat.2
+dat.nondec <- dat.2[which(dat.2$SUBJECT %in% sub.nondec$IDNUM),]
+dat.2 <- dat.2[which(dat.2$SUBJECT %in% sub.dec$IDNUM),]
 
 #######################################################################
 #                         standarization 
@@ -59,10 +77,15 @@ train.1 <- tot.1[train.no,]
 train.2 <- tot.2[train.no,]
 train.3 <- tot.3[train.no,]
 test.no <- fold.2
-test.sub <- dat.2[test.no, 1]
-test.1 <- tot.1[test.no,]
-test.2 <- tot.2[test.no,]
-test.3 <- tot.3[test.no,]
+
+test.sub <- dat.nondec[test.no, 1]
+test.1 <- dat.nondec[test.no,2:56]
+test.2 <- dat.nondec[test.no,57:111]
+test.3 <- dat.nondec[test.no,112:166]
+#test.sub <- dat.2[test.no, 1]
+#test.1 <- tot.1[test.no,]
+#test.2 <- tot.2[test.no,]
+#test.3 <- tot.3[test.no,]
 
 e1 <- train.2 - train.1
 e2 <- train.3 - train.2
@@ -75,7 +98,7 @@ write.table(E, file = "./data/E.csv", sep = ",", row.names = FALSE, col.names = 
 #######################################################################
 #                   Bootstraping Confidence Interval
 #######################################################################
-if(TRUE) {
+if(FALSE) {
   boot.num <- 100
   for (i in 1:boot.num) {
     boot.dat <- sample(num.sub, num.sub-1, replace = TRUE)
