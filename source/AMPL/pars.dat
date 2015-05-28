@@ -1,3 +1,0 @@
-param n_w := 55; # number of weights
-param n_xi := 182; # number of slack variables
-param C := 20; # parameter, determined by cross validation
