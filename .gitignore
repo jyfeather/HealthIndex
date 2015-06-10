@@ -11,4 +11,4 @@
 .Rproj.user/
 
 # data cannot be shared
-.data/
+data/
