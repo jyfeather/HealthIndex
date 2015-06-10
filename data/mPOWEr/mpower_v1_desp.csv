@@ -1,0 +1,111 @@
+order,variable,static/serial,variable type,variable type 2,category,notes,descrip
+1,pidnr,,,,,,patient identification number (1-1000)
+2,postopday,,,,,,post-operative day
+3,SEX,static,binary,1,static risk factor,,gender or sex
+4,contamination,static,ordered categorical,2,static risk factor,,degree of contamination
+5,typesurg,static,unordered categorical,1,static risk factor,,type of operation
+6,Emergenc,static,binary,1,static risk factor,,emergency surgery
+7,ASASCORE,static,ordered categorical,2,static risk factor,,American Society of Anesthesiologists score
+8,typesutcat,static,unordered categorical,1,static risk factor,,suture fascia category
+9,typesuture_cat,static,unordered categorical,1,static risk factor,,similar to typesutcat
+10,tension,static,ordered categorical,2,static risk factor,,tension category
+11,statusfascia,static,ordered categorical,2,static risk factor,,status fascia category
+12,incisioncat,static,unordered categorical,1,static risk factor,,incision category
+13,typeincision,static,unordered categorical,1,static risk factor,,type of incision categorized
+14,smoking,static,binary,1,static risk factor,,Smoking
+15,SIGADAY,static,continuous,0,static risk factor,,amount of cigarettes/day
+16,AGE,static,continuous,0,static risk factor,,age in years
+17,DM,static,binary,1,static risk factor,,diabetes mellitus type I of II
+18,BMI,static,continuous,0,static risk factor,,body mass index
+19,BMIgr,static,ordered categorical,2,static risk factor,derived,body mass index (categorical)
+20,LUNGDIS,static,binary,1,static risk factor,,chronic lung disease
+21,Systeroid,static,binary,1,static risk factor,,systemic corticosteroid use
+22,STEROID,static,binary,1,static risk factor,,corticosteroid use
+23,durationsurg,static,continuous,0,static risk factor,,duration of surgery in min
+24,Chemotx3m,static,binary,1,static risk factor,,chemotherapy last 3 mths preop
+25,HB,static,binary,0,static risk factor,,preop Hb
+26,bloodtx,static,binary,1,static risk factor,,blood transfusion perioperatively
+27,suturemethod,static,unordered categorical,1,static risk factor,,suturing method
+28,transplantation,static,binary,1,static risk factor,,kidney or liver transplantation during current surgery
+29,pregnancy,static,binary,1,static risk factor,,pregnancy in medical history
+30,ostomy,static,binary,1,static risk factor,,ostomy created during current surgery
+31,radiotx3m,static,binary,1,static risk factor,,radiotherapy in 3 mths preop
+32,ASCITES,static,binary,1,static risk factor,,Ascites present
+33,alcuse,static,binary,1,static risk factor,,alcohol use yes or no
+34,unitsalcwk,static,continuous,0,static risk factor,,units of alc per week
+35,totprotein,static,continuous,0,static risk factor,,preop tot protein
+36,albumin,static,continuous,0,static risk factor,,preop albumin
+37,BILITOT,static,continuous,0,static risk factor,,preop bili tot
+38,UREUM,static,continuous,0,static risk factor,,preop ureum
+39,creat,static,continuous,0,static risk factor,,preop creatinin
+40,CRP,static,continuous,0,static risk factor,,preop crp
+41,TROMBO,static,continuous,0,static risk factor,,preop trombocytes
+42,leuco,static,continuous,0,static risk factor,,preop leucocytes
+43,PT,static,continuous,0,static risk factor,,preop pt
+44,APTT,static,continuous,0,static risk factor,,preop aptt
+45,famhistory,static,binary,1,static risk factor,,1st degree family member with incisional or inguinal hernia
+46,cigGR10,static,binary,1,static risk factor,derived,greater than 10 cigarettes/day
+47,ageGR60,static,binary,1,static risk factor,derived,age >60y
+48,agecat,static,ordered categorical,2,static risk factor,derived,age categories
+49,dursurgGR3h,static,binary,1,static risk factor,derived,surgery duration >3h
+50,hbL7,static,binary,1,static risk factor,derived,HB <7
+51,alcGR14,static,binary,1,static risk factor,derived,alcohol>14/week
+52,totproteinL64,static,binary,1,static risk factor,derived,total protein <64
+53,albuminL35,static,binary,1,static risk factor,derived,albumin <35
+54,bilitotGR18,static,binary,1,static risk factor,derived,bilitot > 18
+55,bunGR21,static,binary,1,static risk factor,derived,BUN >21
+56,creatGR133,static,binary,1,static risk factor,derived,creat >133
+57,crpGR22,static,binary,1,static risk factor,derived,crp >22
+58,tromboL150,static,binary,1,static risk factor,derived,trombo<150
+59,leuco4to11,static,ordered categorical,2,static risk factor,derived,"leuco <4,4-11,>11"
+60,pt11to13dot5,static,ordered categorical,2,static risk factor,derived,"pt <11,11-13.5,>13.5"
+61,aptt30to40,static,ordered categorical,2,static risk factor,derived,"aptt <30, 30-40,>40"
+62,operationno,serial,count,2,serial observation,,serial operation number
+63,typeslough,serial,ordered categorical,2,serial observation,,type of wound slough necrosis
+64,typeexudate,serial,ordered categorical,2,serial observation,,type of exudate
+65,odour,serial,binary,1,serial observation,,wound odour
+66,woundedgedist,serial,ordered categorical,2,serial observation,,wound edge distance
+67,maxwounddist,serial,continuous,0,serial observation,,max wound edge distance mm
+68,cough,serial,binary,1,serial observation,,cough category
+69,prodcough,serial,binary,1,serial observation,,productive cough category
+70,degreeslough,serial,ordered categorical,2,serial observation,,degree wound slough necrosis
+71,degreeexudate,serial,ordered categorical,2,serial observation,,degree wound exudate
+72,woundcolour,serial,ordered categorical,2,serial observation,,colour wound edge
+73,granulation,serial,ordered categorical,2,serial observation,,degree granulation
+74,indurationscore,serial,ordered categorical,2,serial observation,,degree of induration
+75,wounddistance,serial,continuous,0,serial observation,,degree of wound edge distance
+76,VAS,serial,ordered categorical/continuous,2,serial observation,,visual analogue pain scale 1-100
+77,woundlength,serial,continuous,0,serial observation,,wound length
+78,vomiting,serial,binary,1,serial observation,,vomiting category
+79,respvent,serial,binary,1,serial observation,,ventilator category
+80,antibiotics,serial,binary,1,serial observation,,antibiotics category
+81,distbiiliacal,serial,continuous,0,serial observation,,distance biiliacal
+82,hematoma,serial,binary,1,serial observation,,hematoma category
+83,reoperationcat,serial,binary,1,serial observation,,reoperation category
+84,NGtube,serial,binary,1,serial observation,,nasogastric tube
+85,circumfSIAS,serial,continuous,0,serial observation,,circumference abdominal
+86,pulse,serial,continuous,0,serial observation,,pulse
+87,RRDIA,serial,continuous,0,serial observation,,diastolic RR
+88,RRSYS,serial,continuous,0,serial observation,,systolic RR
+89,masscat,serial,binary,1,serial observation,,wound mass palpable category
+90,seroma,serial,binary,1,serial observation,,seroma category
+91,TEMP,serial,continuous,0,serial observation,,tympanic temperature
+92,Ileus,serial,binary,1,serial observation,,suspicion ileus
+93,woundcult,serial,binary,1,serial observation,,wound culture previous 24h
+94,tempwound,serial,continuous,0,serial observation,,wound temp
+95,XiphoidosPubis,serial,continuous,0,serial observation,,distance xiphoid bone pubic bone
+96,temp1cmmean,serial,continuous,0,serial observation,,wound temp 1 cm mean
+97,pt-wound,serial,continuous,0,serial observation,derived,TEMP - tempwound
+98,1cm-wound,serial,continuous,0,serial observation,derived,temp1cm - tempwound
+99,supssi,,binary,1,outcome,,superficial SSI
+100,t_sup,,continuous,0,outcome,,day of superficial SSI
+101,deepssi,,binary,1,outcome,,deep SSI
+102,t_deep,,continuous,0,outcome,,day of deep SSI
+103,organspacessi,,binary,1,outcome,,organ space SSI
+104,t_organ,,continuous,0,outcome,,day of organ space SSI
+105,wounddatamax,,continuous,0,outcome,derived,last day of wound data (typeslough and/or typeexudate was recorded)
+106,postdc,,binary,1,outcome,derived,indicator of post-discharge infection (t_anyssi>wounddatamax)
+107,indic,,categorical,1,outcome,derived,"indicator of SSI (0=none,1=in-hospital,2=post-discharge)"
+108,indicbinary,,binary,1,outcome,derived,"indicator of SSI (0=none or post-discharge, 1=in-hospital)"
+109,t_firstinhospitalssi,,continuous,0,outcome,derived,day of first inhospital ssi
+110,dayofpred,,continuous,0,outcome,derived,"postopday of prediction (before ssi patients, 1 day before SSI; for non-ssi patients, similar matched day)"
