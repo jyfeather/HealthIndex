@@ -118,28 +118,29 @@ m <- nrow(train.bs)
 n <- rep(3, m)
 num <- sum(n-1)
 num2 <- ncol(train.bs)
-C <- 1
+C <- -1
+train.all <- merge.all(train.bs, train.m6, train.m12)
 
-Dmat <- Kmat(as.matrix(train.all), m, n, num2, "linear") 
-dvec <- rep(1, num)
-bvec <- c(rep(0, num), rep(C, num))
-Amat <- cbind(diag(num), diag(num))
+solveHI <- function(data, num.sub, num.var, num.periods, type = "linear") {
+  Dmat <- Kmat(as.matrix(train.all), m, n, num2, "linear") 
+  dvec <- rep(1, num)
+  bvec <- c(rep(0, num), rep(C, num))
+  Amat <- rbind(diag(num), -diag(num))
+  
+  # find nearest positive definite matrix since Dmat is not always PD
+  require(Matrix)
+  Dmat_PD <- as.matrix(nearPD(Dmat)$mat)
+  
+  result <- solve.QP(Dmat = Dmat_PD, dvec = dvec, Amat = t(Amat), bvec = bvec)
+  vars <- result$solution
+  return(vars)  
+}
 
-solve.QP(Dmat, dvec, Amat, bvec)
+w <- solveHI()
 
-# Dmat is not always positive semidefinite, then cannot solve nonconvex problem
-
-#######################################################################
-#                         Use AMPL to solve this problem  
-#######################################################################
-# pass coefficients to AMPL to solve this problem
-E <- round(E, 5)
-E <- cbind(c(1:nrow(E)), E)
-E <- rbind(as.integer(c(0:ncol(E))), E)
-write.table(E, file = "./data/tmp/E.dat", sep = " ", row.names = FALSE, col.names = FALSE)
-
-omega <- read.table(file = "./data/tmp/w.res", header = FALSE)
-unlink("./data/tmp/w.res")
+computeHI <- function(train, test, coef, type = "linear") {
+  
+}
 
 #######################################################################
 #                         Health Index Construction
@@ -162,6 +163,9 @@ as.factor(dat$group)
 
 write.csv(cbind(rid = rid[test.no], dat[,-1]), file = "./data/tmp/idx.csv")
 
+#######################################################################
+#                         Visualization
+#######################################################################
 library(ggplot2)
 # Full plot
 ggplot(data = dat, aes(y = V1, x = val, shape = group, color = val2)) + 
