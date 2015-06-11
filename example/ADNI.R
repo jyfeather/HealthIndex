@@ -1,9 +1,9 @@
 rm(list=ls())
 #######################################################################
-#                         Input
+#                          Read Data  
 #######################################################################
 if (FALSE) {
-  Sys.setenv(JAVA_HOME='C:/Program Files/Java/jre1.8.0_25/')
+  Sys.setenv(JAVA_HOME='C:/Program Files/Java/jre1.8.0_31/')
   library(xlsx)
   ad.bs <- read.xlsx(file = "./data/ADNI/ADNIaalBM_BSL_AD.xls", header = TRUE, sheetIndex = 1)
   ad.m6 <- read.xlsx(file = "./data/ADNI/ADNIaalBM_M06_AD.xls", header = TRUE, sheetIndex = 1)
@@ -24,18 +24,17 @@ if (FALSE) {
   dat.bs <- dat.bs[,1:90]
   dat.m6 <- dat.m6[,1:90]
   dat.m12 <- dat.m12[,1:90]  
-  omega.name <- read.table(file = "C:/Users/jyfea_000/Dropbox/Research/Health_Index/dataset/ADNI/aal.txt", sep = " ")
+  omega.name <- read.table(file = "./data/ADNI/aal.txt", sep = " ")
   # save data
-  unlink("*.RData")
+  unlink("ADNI.RData")
   save.image(file = "ADNI.RData")
 }
-
 
 # load data
 load(file = "./ADNI.RData")
 
 #######################################################################
-#                         Quadratic Formulation  
+#               Testing & Training Set Construction  
 #######################################################################
 num.break <- c(nrow(ad.bs), nrow(ad.bs) + nrow(mci.bs), nrow(ad.bs) + nrow(mci.bs) + nrow(nl.bs))
 num.sub <- nrow(dat.bs) # num of subjects is 324 
@@ -59,11 +58,76 @@ test.bs <- dat.bs[test.no,]
 test.m6 <- dat.m6[test.no,]
 test.m12 <- dat.m12[test.no,]
 
-#library(quadprog)
-e1 <- train.m6 - train.bs
-e2 <- train.m12 - train.m6
-E <- rbind(e1, e2)
-#solve.QP(Dmat = 2*H, dvec = -l, Amat = t(E), bvec = b0)
+#######################################################################
+#                  Computing the coefficients w  
+#######################################################################
+library(quadprog) # this is a quadratic problem
+## using kernel trick
+kernel <- function(x, y, type = "linear") {
+  switch(type,
+         linear     =  x%*%y,
+         gaussian   =  exp(-sum((x-y)^2)/2),
+         polynomial =  (x%*%y+1)^2)
+}
+
+## compute the kernel matrix in the Lagrange dual
+## computeK = k(x2,y2)-k(x1,y1)-k(x2,y1)+k(x1,y1)
+computeK <- function(x1, x2, y1, y2, type = "linear") {
+  return(kernel(x1,y1,type)-kernel(x1,y2,type)-kernel(x2,y1,type)+kernel(x2,y2,type))  
+}
+
+## merge dataset by observations
+merge.all <- function(x, ..., by = "row.names") {
+  L <- list(...)
+  for (i in seq_along(L)) {
+    x <- merge(x, L[[i]], by = by)
+    rownames(x) <- x$Row.names
+    x$Row.names <- NULL
+  }
+  return(x)
+}
+
+## construct D
+Kmat <- function(data, m, n, num2, type = "linear") {
+  num <- sum(n-1)
+  Dmat <- matrix(NA, nrow = num, ncol = num)
+  for(i in 1:num) {
+    x.i <- (i+1)%/%2 # current subject
+    x.j <- i%%2    # current time
+    if(x.j > 0) {
+      x1 <- data[x.i, 1:num2]; x2 <- data[x.i, (num2+1):(2*num2)]
+    } else {
+      x1 <- data[x.i, (num2+1):(2*num2)]; x2 <- data[x.i, (2*num2+1):(3*num2)]
+    }
+    for(j in 1:i) {
+      y.i <- (j+1)%/%2
+      y.j <- j%%2
+      if(y.j > 0) {
+        y1 <- data[y.i, 1:num2]; y2 <- data[y.i, (num2+1):(2*num2)]
+      } else {
+        y1 <- data[y.i, (num2+1):(2*num2)]; y2 <- data[y.i, (2*num2+1):(3*num2)]
+      }
+      Dmat[i,j] <- computeK(x1, x2, y1, y2, type)
+      Dmat[j,i] <- Dmat[i,j]
+    }
+  }
+  return(Dmat)
+}
+
+m <- nrow(train.bs)
+n <- rep(3, m)
+num <- sum(n-1)
+num2 <- ncol(train.bs)
+C <- 1
+
+Dmat <- Kmat(as.matrix(train.all), m, n, num2, "linear") 
+dvec <- rep(1, num)
+bvec <- c(rep(0, num), rep(C, num))
+Amat <- cbind(diag(num), diag(num))
+
+solve.QP(Dmat, dvec, Amat, bvec)
+
+# Dmat is not always positive semidefinite, then cannot solve nonconvex problem
 
 #######################################################################
 #                         Use AMPL to solve this problem  
