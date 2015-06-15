@@ -139,7 +139,13 @@ solveHI <- function(data, num.sub, num.var, num.periods, type = "linear") {
 w <- solveHI()
 
 computeHI <- function(train, test, coef, type = "linear") {
-  
+  num.test <- nrow(test)    
+  for (i in 1:num.test) {
+    HI <- test[i,]
+    for (j in 1:218) {
+      kernel(train.all[j,91:180], HI, type) - kernel(train.all[j,1:90], HI, type) 
+    }
+  }
 }
 
 #######################################################################
