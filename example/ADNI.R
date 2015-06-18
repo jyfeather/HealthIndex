@@ -61,7 +61,7 @@ test.m12 <- dat.m12[test.no,]
 #                  Computing the coefficients w  
 #######################################################################
 source(file = "./R/HealthIndex.R")
-type = "polynomial"
+type = "linear"
 train.all <- merge.all(train.bs, train.m6, train.m12)
 coef <- solveHI(train.all, nrow(train.all), 3, 90, -1, type)
 
@@ -95,5 +95,19 @@ ggplot(data = dat, aes(y = V1)) +
 # apply rules to compute classification rate
 #######################################################################
 source(file = "./R/Rules.R")
-class.correct <- c()
-row.names(dat)
+source(file = "./R/measure.R")
+class.correct <- rep("AD", nrow(dat))
+class.correct[as.integer(row.names(dat)) >= num.ad] <- "normal"
+dat <- dat[,-1]
+class.pred <- rule.class(dat, 1.5)
+accuracy(class.correct, class.pred)
+
+class.pred <- rule.trend(dat, 0.3)
+accuracy(class.correct, class.pred)
+
+class.pred <- rule.class2(dat, 0.1, 1.8)
+accuracy(class.correct, class.pred)
+
+#######################################################################
+# apply rules to compute AUC
+#######################################################################

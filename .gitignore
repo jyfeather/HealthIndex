@@ -12,3 +12,4 @@
 
 # data cannot be shared
 data/
+.Rproj.user
