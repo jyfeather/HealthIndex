@@ -90,3 +90,10 @@ ggplot(data = dat, aes(y = V1)) +
   geom_point(aes(x = ind.m6), color = "yellow") + 
   geom_point(aes(x = ind.m12), color = "red") +
   geom_hline(yintercept = 26)
+
+#######################################################################
+# apply rules to compute classification rate
+#######################################################################
+source(file = "./R/Rules.R")
+class.correct <- c()
+row.names(dat)
