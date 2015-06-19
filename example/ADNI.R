@@ -61,7 +61,7 @@ test.m12 <- dat.m12[test.no,]
 #                  Computing the coefficients w  
 #######################################################################
 source(file = "./R/HealthIndex.R")
-type = "linear"
+type = "gaussian"
 train.all <- merge.all(train.bs, train.m6, train.m12)
 coef <- solveHI(train.all, nrow(train.all), 3, 90, -1, type)
 
@@ -99,16 +99,22 @@ source(file = "./R/measure.R")
 class.correct <- rep("AD", nrow(dat))
 class.correct[as.integer(row.names(dat)) >= num.ad] <- "normal"
 dat <- dat[,-1]
-class.pred <- rule.class(dat, 1.5)
-accuracy(class.correct, class.pred)
+for(val in seq(0,2,by = 0.1)) {
+  class.pred <- rule.class(dat, val)
+  print(accuracy(class.correct, class.pred))
+}
 
-class.pred <- rule.trend(dat, 0.3)
-accuracy(class.correct, class.pred)
+for(val in seq(0,2,by = 0.1)) {
+  class.pred <- rule.trend(dat, val)
+  print(accuracy(class.correct, class.pred))
+}
 
-class.pred <- rule.class2(dat, 0.1, 1.8)
-accuracy(class.correct, class.pred)
-
+for(val1 in seq(-0.5,1,by = 0.1)) {
+  for(val2 in seq(0,3,by = 0.5)) {
+    class.pred <- rule.class2(dat, val1, val2)
+    print(accuracy(class.correct, class.pred))
+  }
+}
 #######################################################################
 # apply rules to compute AUC
 #######################################################################
-library(ROCR)

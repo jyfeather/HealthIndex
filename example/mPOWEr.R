@@ -32,7 +32,16 @@ if (FALSE) {
       data.ewma[data$V1==i,j] <- ewma.loop(data[data$V1==i,j],lambda = 0.2)
     }
   }
-  rm(i,j) 
+  # reshape
+  data.ewma <- as.matrix(data.ewma)
+  data.ewma2 <- matrix(NA, ncol = 100)
+  for(i in unique(data.ewma[,1])) {
+    tmp <- as.vector(t(data.ewma[data.ewma[,1]==i,-c(1,2)]))
+    if(length(tmp)!=100) next
+    data.ewma2 <- rbind(data.ewma2, tmp)
+  }
+  
+  rm(i,j,tmp) 
   # save data
   unlink("mPOWEr.RData")
   save.image(file = "mPOWEr.RData")
@@ -43,35 +52,19 @@ load(file = "./mPOWEr.RData")
 
 #######################################################################
 #               Testing & Training Set Construction  
+# total 860 subjects
 #######################################################################
-num.sub <- nrow(dat.bs) # num of subjects is 324 
-dat.no <- c(1:num.sub)
-num.epo <- 3 # num of epochs is 3, baseline, m06, m12
-num.aal <- ncol(dat.bs) # num of regions of interests
-
-# 3 - folder Cross Validation 
-folder.1 <- sample(num.sub, round(1/3*num.sub), replace = FALSE)
-folder.2 <- sample(setdiff(dat.no, folder.1), round(1/3*num.sub), replace = FALSE)
-folder.3 <- setdiff(dat.no, union(folder.1, folder.2))
-
-train.no <- union(folder.2, folder.3)
-test.no <- folder.1; test.no <- sort(test.no)
-
-train.bs <- dat.bs[train.no,]
-train.m6 <- dat.m6[train.no,]
-train.m12 <- dat.m12[train.no,]
-
-test.bs <- dat.bs[test.no,]
-test.m6 <- dat.m6[test.no,]
-test.m12 <- dat.m12[test.no,]
+no.test <- sample(nrow(data.ewma2), 300)
+no.train <- setdiff(1:nrow(data.ewma2), no.test)
+dat.test <- data.ewma2[no.test,]
+dat.train <- data.ewma2[no.train,]
 
 #######################################################################
 #                  Computing the coefficients w  
 #######################################################################
 source(file = "./R/HealthIndex.R")
 type = "linear"
-train.all <- merge.all(train.bs, train.m6, train.m12)
-coef <- solveHI(train.all, nrow(train.all), 3, 90, -1, type)
+coef <- solveHI(dat.train, nrow(dat.train), 20, 5, -1, type)
 
 #######################################################################
 #                         Health Index Construction
