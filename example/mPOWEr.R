@@ -8,6 +8,7 @@ if (FALSE) {
   data <- cbind(data.orig$pidnr, data.orig$postopday, data.orig$degreeexudate,
                 data.orig$degreeslough, data.orig$granulation, data.orig$typeexudate, data.orig$typeslough)
   data <- as.data.frame(data)
+  names(data) <- c("pidnr", "postopday", "degreeexudate", "degreeslough", "granulation", "typeexudate", "typeslough")
   
   # standarize
   for(i in 3:(ncol(data))) {
@@ -29,7 +30,7 @@ if (FALSE) {
   data.ewma <- data
   for(i in unique(data[,1])) {
     for(j in 3:ncol(data)) {
-      data.ewma[data$V1==i,j] <- ewma.loop(data[data$V1==i,j],lambda = 0.2)
+      data.ewma[data[,1]==i,j] <- ewma.loop(data[data[,1]==i,j],lambda = 0.2)
     }
   }
   # reshape
@@ -112,4 +113,3 @@ accuracy(class.correct, class.pred)
 #######################################################################
 # apply rules to compute AUC
 #######################################################################
-library(ROCR)
